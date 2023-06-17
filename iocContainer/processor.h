@@ -1,35 +1,135 @@
 #ifndef PROCESSOR_H
 #define PROCESSOR_H
 
+#include "ioccontainer.h"
+
 enum ProcessorType
-{ x86,
-   x64
+{
+    x86,
+    x64
 };
 
-class Computer
+class IProcessor
 {
-   public:
-        IntelProcessor* GetProcessor(double speed, ProcessorType type, string version)
-    {
-       return new IntelProcessor(speed, type, version);
-    }
+public:
+    virtual ~IProcessor() {}
+    virtual string getProcessorInfo() = 0;
+    virtual void setProcessor(string, ProcessorType, double) = 0;
+    virtual string getProcessor(ProcessorType) = 0;
 };
 
-class IntelProcessor
+class IntelProcessor : public IProcessor
 {
-     string Version;
-     ProcessorType Type;
-     double Speed;
+     string m_version;
+     ProcessorType m_type;
+     double m_speed;
    public:
-     IntelProcessor;
+     IntelProcessor() {}
 
 //get,set????
 
-  string GetProcessorInfo()
+  string getProcessorInfo() override
   {
-   return "Processor for" + Version + Speed + Type;
+        return m_version + " processor for " + getProcessor(m_type) + " " + to_string(m_speed);
   }
 
+  void setProcessor(string version, ProcessorType type, double speed) override
+  {
+      m_version = version;
+      m_type = type;
+      m_speed = speed;
+  }
+
+  string getProcessor(ProcessorType type) override
+  {
+      switch (type)
+      {
+      case ProcessorType::x64:
+          return "x64";
+          break;
+
+      case ProcessorType::x86:
+          return "x86";
+          break;
+
+      default:
+          break;
+      }
+
+      return "No processor.";
+  }
  };
+
+class AmdProcessor : public IProcessor
+{
+     string m_version;
+     ProcessorType m_type;
+     double m_speed;
+   public:
+     AmdProcessor() {}
+
+//get,set????
+
+  string getProcessorInfo() override
+  {
+        return m_version + " processor for " + getProcessor(m_type) + " " + to_string(m_speed);
+  }
+
+  void setProcessor(string version, ProcessorType type, double speed) override
+  {
+      m_version = version;
+      m_type = type;
+      m_speed = speed;
+  }
+
+  string getProcessor(ProcessorType type) override
+  {
+      switch (type)
+      {
+      case ProcessorType::x64:
+          return "x64";
+          break;
+
+      case ProcessorType::x86:
+          return "x86";
+          break;
+
+      default:
+          break;
+      }
+      return "No processor.";
+  }
+ };
+
+class Computer
+{
+public:
+    Computer() {}
+
+    Computer(std::shared_ptr<IProcessor> processor)
+    {
+        m_processor = processor;
+    }
+
+    void setProcessor(std::shared_ptr<IProcessor> processor)
+    {
+        m_processor = processor;
+    }
+
+    string getInfo()
+    {
+        if (m_processor != nullptr)
+        {
+            return m_processor->getProcessorInfo();
+        }
+        else
+        {
+            return "No processor";
+        }
+    }
+
+private:
+    std::shared_ptr<IProcessor> m_processor;
+};
 
 #endif // PROCESSOR_H
